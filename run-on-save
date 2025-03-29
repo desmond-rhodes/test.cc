@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+set -e
+
+file=$(realpath --relative-to="$1" "$2")
+
+printf "START [$(date '+%Y/%m/%d %H:%M:%S')]\n"
+trap 'printf "\nEND [$(date '\''+%Y/%m/%d %H:%M:%S'\'')]\n\n"' 0
+
+printf "\n+ make -s $file\n\n"
+time make -s "$file"
+
+printf "\n+ ./$file\n\n"
+time "./$file"

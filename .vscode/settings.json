@@ -13,5 +13,14 @@
 	"files.eol": "\n",
 	"files.insertFinalNewline": true,
 	"files.trimFinalNewlines": true,
-	"files.trimTrailingWhitespace": true
+	"files.trimTrailingWhitespace": true,
+	"emeraldwalk.runonsave": {
+		"autoClearConsole": true,
+		"commands": [
+			{
+				"match": "\\.cc$",
+				"cmd": "./run-on-save '${workspaceFolder}' '${fileDirname}/${fileBasenameNoExt}'"
+			}
+		]
+	}
 }
