@@ -15,3 +15,14 @@ CXXFLAGS += -fsanitize=undefined,float-divide-by-zero,local-bounds,vptr,integer,
 
 # https://clang.llvm.org/docs/SanitizerSpecialCaseList.html
 CXXFLAGS += -fsanitize-ignorelist=ignorelist.txt
+
+LINK.o := $(LINK.cc)
+
+CPPFLAGS := -MMD -MP
+
+.PHONY: target
+target:
+	@echo $(TARGET): $(shell $(CXX) -MM $(SOURCE) | sed 's`^[^ ]* ``;s`\.[^ ]*`.o`g' | xargs -n1 | sort -u | xargs) | tee $(TARGET).objs.d
+
+INCLUDE := $(shell find . | grep '\.d$$')
+-include $(INCLUDE)

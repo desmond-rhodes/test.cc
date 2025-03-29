@@ -1,0 +1,20 @@
+template<typename ...T>
+test::fail<T...>::operator test::error_t() const {
+	return error;
+}
+
+template<typename ...T>
+test::fail<T...>::fail(
+	test::detail_t const& detail,
+	test::origin_t const& origin
+) :
+	error {origin, detail}
+{}
+
+template<typename ...T>
+test::fail<T...>::fail(
+	T const&... detail,
+	test::origin_t const& origin
+) :
+	error {origin, {detail...}}
+{}

@@ -19,8 +19,19 @@
 		"commands": [
 			{
 				"match": "\\.cc$",
+				"cmd": "./run-on-save '${workspaceFolder}' '${fileDirname}/${fileBasenameNoExt}' '${fileExtname}'"
+			},
+			{
+				"match": "\\.hh$",
+				"cmd": "./run-on-save '${workspaceFolder}' '${fileDirname}/${fileBasenameNoExt}'"
+			},
+			{
+				"match": "\\.tt$",
 				"cmd": "./run-on-save '${workspaceFolder}' '${fileDirname}/${fileBasenameNoExt}'"
 			}
 		]
+	},
+	"files.associations": {
+		"*.tt": "cpp"
 	}
 }

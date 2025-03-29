@@ -4,3 +4,6 @@
 
 !makefile
 !run-on-save
+
+*.d
+*.o

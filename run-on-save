@@ -1,14 +1,30 @@
 #!/usr/bin/env bash
 
+silent='-s'
+
 set -e
 
 file=$(realpath --relative-to="$1" "$2")
+ext=$(echo "$3" | sed 's`^\.``')
 
 printf "START [$(date '+%Y/%m/%d %H:%M:%S')]\n"
 trap 'printf "\nEND [$(date '\''+%Y/%m/%d %H:%M:%S'\'')]\n\n"' 0
 
-printf "\n+ make -s $file\n\n"
-time make -s "$file"
+time {
+	printf "\n+ make $silent $file.o\n\n"
+	make $silent "$file.o"
+	if [[ ! -n $(nm "$file.o" | grep 'main') ]]; then
+		exit 0
+	fi
 
-printf "\n+ ./$file\n\n"
-time "./$file"
+	printf "\n+ "
+	make TARGET="$file" SOURCE="$file.$ext"
+
+	printf "\n+ make $silent $file\n\n"
+	make $silent "$file"
+}
+
+time {
+	printf "\n+ ./$file\n\n"
+	"./$file"
+}
