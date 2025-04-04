@@ -11,7 +11,8 @@
 namespace test {
 	struct node_t;
 	struct error_t;
-	using function_t = std::function<std::optional<error_t>()>;
+	using result_t = std::optional<error_t>;
+	using function_t = std::function<result_t()>;
 
 	using branch_t = std::vector<node_t>;
 	using report_t = std::vector<error_t>;

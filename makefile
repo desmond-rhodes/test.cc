@@ -1,5 +1,6 @@
 CXX := clang++
 CXXFLAGS := -std=c++23 -pedantic -Wall -Wextra -Wpedantic -Wcast-align -Wconversion -Wsign-conversion -Wdouble-promotion
+CPPFLAGS := -I.
 
 # https://github.com/cpp-best-practices/cppbestpractices/blob/master/02-Use_the_Tools_Available.md
 CXXFLAGS += -Wshadow -Wnon-virtual-dtor -Wold-style-cast -Wunused -Woverloaded-virtual -Wformat=2 -Wimplicit-fallthrough
@@ -18,11 +19,11 @@ CXXFLAGS += -fsanitize-ignorelist=ignorelist.txt
 
 LINK.o := $(LINK.cc)
 
-CPPFLAGS := -MMD -MP
+CPPFLAGS += -MMD -MP
 
-.PHONY: target
-target:
-	@echo $(TARGET): $(shell $(CXX) -MM $(SOURCE) | sed 's`^[^ ]* ``;s`\.[^ ]*`.o`g' | xargs -n1 | sort -u | xargs) | tee $(TARGET).objs.d
+.PHONY: dependencies
+dependencies:
+	@$(CXX) $(CPPFLAGS) -MMD -MF - $(SOURCE)
 
 INCLUDE := $(shell find . | grep '\.d$$')
 -include $(INCLUDE)

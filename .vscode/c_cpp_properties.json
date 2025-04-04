@@ -1,7 +1,8 @@
 {
 	"configurations": [
 		{
-			"cppStandard": "c++23"
+			"cppStandard": "c++23",
+			"includePath": ["."]
 		}
 	],
 	"version": 4
