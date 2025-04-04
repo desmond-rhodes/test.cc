@@ -53,9 +53,12 @@ dispatch_main() {
 }
 
 dispatch_file() {
-	local base is_test can_build has_main
+	local base is_main is_test can_build has_main
 
 	base=$(ext_del "${1}")
+
+	is_main=$(boolean '[ ! -z `ext_get "${base}" | grep "main"` ]')
+	[ "${is_main}" = 'true' ] && base=$(ext_del "${base}")
 
 	is_test=$(boolean '[ ! -z `ext_get "${base}" | grep "test"` ]')
 	[ "${is_test}" = 'true' ] && base=$(ext_del "${base}")
