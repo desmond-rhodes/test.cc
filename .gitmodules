@@ -1,0 +1,3 @@
+[submodule ".devcontainer/clang"]
+	path = .devcontainer/clang
+	url = https://github.com/desmond-rhodes/.devcontainer.clang
