@@ -1,0 +1,107 @@
+#!/usr/bin/env bash
+
+silent='-s'
+
+relative_path() {
+	[ ! -z "${2}" ] && realpath --relative-to="${2}" "${1}" || echo "${1}"
+}
+
+ext_del() { echo "${1}" | sed 's/\.[^.]*$//'; }
+
+ext_get() { echo "${1}" | sed -n 's/^.*\.\([^.]*\)$/\1/p'; }
+
+ext_src() {
+	make -nd "${1}" 2> /dev/null \
+		| grep 'Found implicit rule' \
+		| grep "${1}" \
+		| sed "s/^.[^']*'%[^:]*: %\.\([^']*\)'.*$/\1/"
+}
+
+boolean() { eval "${1}" && echo 'true' || echo 'false'; }
+
+dispatch_count=0
+
+dispatch_make() {
+	(( ${dispatch_count} > 0 )) && printf '\n'
+	dispatch_count=$(( ${dispatch_count} + 1 ))
+	printf '+ make %s %s\n\n' "${silent}" "${1}"
+	make "${silent}" "${1}"
+}
+
+dispatch_deps() {
+	(( ${dispatch_count} > 0 )) && printf '\n'
+	dispatch_count=$(( ${dispatch_count} + 1 ))
+	printf '+ %s\n' "${2}"
+	echo "${2}" > "${1}.objs.d"
+}
+
+dispatch_main() {
+	local deps
+	for i in $( \
+		make dependencies SOURCE="${1}."`ext_src "${1}.o"` 2> /dev/null \
+		| sed 's/^[^ ]*//' \
+		| xargs -n1 \
+		| sed 's/\.[^.]*$/.o/' \
+		| sort -u \
+	); do
+		[ ! -z `ext_src "${i}"` ] && deps="${deps} ${i}"
+	done
+	deps="${1}:${deps}"
+	dispatch_deps "${1}" "${deps}"
+	dispatch_make "${1}"
+	run="${1}"
+}
+
+dispatch_file() {
+	local base is_main is_test can_build has_main
+
+	base=$(ext_del "${1}")
+
+	is_main=$(boolean '[ ! -z `ext_get "${base}" | grep "main"` ]')
+	[ "${is_main}" = 'true' ] && base=$(ext_del "${base}")
+
+	is_test=$(boolean '[ ! -z `ext_get "${base}" | grep "test"` ]')
+	[ "${is_test}" = 'true' ] && base=$(ext_del "${base}")
+
+	if [ "${is_test}" = 'false' ]; then
+		can_build=$(boolean '[ ! -z `ext_src "${base}.o"` ]')
+		if [ "${can_build}" = 'true' ]; then
+			dispatch_make "${base}.o"
+			has_main=$(boolean '[ ! -z `nm "${base}.o" | grep -om1 'main'` ]')
+			[ "${has_main}" = 'true' ] && dispatch_main "${base}"
+		fi
+	fi
+
+	if [ \
+		"${is_test}" = 'true' -o \
+		"${can_build}" = 'false' -o \
+		"${has_main}" = 'false' \
+	]; then
+		if [ ! -z `ext_src "${base}.test.main.o"` ]; then
+			dispatch_main "${base}.test.main"
+		elif [ ! -z `ext_src "${base}.test.o"` ]; then
+			dispatch_make "${base}.test.o"
+		fi
+	fi
+}
+
+session_time() { date '+%Y/%m/%d %H:%M:%S'; }
+
+session_start() { printf 'START [%s]\n\n' "$(session_time)"; }
+
+session_finish() { printf '\nFINISH [%s]\n\n' "$(session_time)"; }
+
+build_run() {
+	run=''
+	time dispatch_file "${1}"
+	if [ ! -z "${run}" ]; then
+		printf '\n+ ./%s\n\n' "${run}"
+		time "./${run}"
+	fi
+}
+
+file=$(relative_path "${1}" "${2}")
+session_start
+set -e
+trap session_finish 0
+build_run "${file}"

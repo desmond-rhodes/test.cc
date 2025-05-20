@@ -1,0 +1,4 @@
+#!special-case-list-v1
+
+[integer]
+src:.*gcc.*include.*c\+\+.*

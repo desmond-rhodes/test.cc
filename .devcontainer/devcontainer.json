@@ -1,0 +1,14 @@
+{
+	"build": {
+		"dockerfile": "clang/Dockerfile"
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-vscode.cpptools-extension-pack",
+				"ms-vscode.makefile-tools",
+				"emeraldwalk.RunOnSave"
+			]
+		}
+	}
+}

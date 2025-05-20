@@ -1,0 +1,9 @@
+{
+	"configurations": [
+		{
+			"cppStandard": "c++23",
+			"includePath": ["."]
+		}
+	],
+	"version": 4
+}
